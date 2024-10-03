@@ -1,20 +1,30 @@
-import { useState } from "react";
+import {useState} from 'react';
+import {useAddPuppyMutation} from './puppySlice';
 
 /**
  * @component
  * Users can add puppies to the roster by submitting this form.
  */
 export default function PuppyForm() {
-  const [name, setName] = useState("");
-  const [breed, setBreed] = useState("");
+  const [name, setName] = useState('');
+  const [breed, setBreed] = useState('');
 
   // TODO: Use the `addPuppy` mutation to add a puppy when the form is submitted
+  const [addPuppy, {isLoading, error}] = useAddPuppyMutation();
 
-  function postPuppy(event) {
+  async function postPuppy(event) {
     event.preventDefault();
 
     // Placeholder image w/ random photos of dogs
-    const imageUrl = "https://loremflickr.com/200/300/dog";
+    const imageUrl = 'https://loremflickr.com/200/300/dog';
+    try {
+      await addPuppy({name, breed, imageUrl}).unwrap();
+
+      setName('');
+      setBreed('');
+    } catch (error) {
+      console.error('Failed to add puppy:', error);
+    }
   }
 
   return (
@@ -24,7 +34,7 @@ export default function PuppyForm() {
         <label>
           Name
           <input
-            name="puppyName"
+            name='puppyName'
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -32,7 +42,7 @@ export default function PuppyForm() {
         <label>
           Breed
           <input
-            name="breed"
+            name='breed'
             value={breed}
             onChange={(e) => setBreed(e.target.value)}
           />

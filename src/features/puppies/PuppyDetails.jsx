@@ -1,16 +1,26 @@
+import {useDeletePuppyMutation, useGetPuppiesQuery} from './puppySlice';
+
 /**
  * @component
  * Shows comprehensive information about the selected puppy, if there is one.
  * Also provides a button for users to remove the selected puppy from the roster.
  */
-export default function PuppyDetails({ selectedPuppyId, setSelectedPuppyId }) {
+export default function PuppyDetails({selectedPuppyId, setSelectedPuppyId}) {
   // TODO: Grab data from the `getPuppy` query
-
+  const {data: puppy, isLoading} = useGetPuppyQuery(selectedPuppyId, {
+    skip: selectedPuppyId === undefined,
+  });
   // TODO: Use the `deletePuppy` mutation to remove a puppy when the button is clicked
+  const [deletePuppy] = useDeletePuppyMutation();
 
-  function removePuppy(id) {
-    setSelectedPuppyId();
-  }
+  const removePuppy = async (id) => {
+    try {
+      await deletePuppy(id);
+      setSelectedPuppyId();
+    } catch (error) {
+      console.error('Failed to delete puppy:', error);
+    }
+  };
 
   // There are 3 possibilities:
   let $details;
@@ -30,12 +40,15 @@ export default function PuppyDetails({ selectedPuppyId, setSelectedPuppyId }) {
           {puppy.name} #{puppy.id}
         </h3>
         <p>{puppy.breed}</p>
-        <p>Team {puppy.team?.name ?? "Unassigned"}</p>
+        <p>Team {puppy.team?.name ?? 'Unassigned'}</p>
         <button onClick={() => removePuppy(puppy.id)}>
           Remove from roster
         </button>
         <figure>
-          <img src={puppy.imageUrl} alt={puppy.name} />
+          <img
+            src={puppy.imageUrl}
+            alt={puppy.name}
+          />
         </figure>
       </>
     );
